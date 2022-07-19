@@ -21,14 +21,17 @@ async function main() {
         'password': process.env.DB_PASSWORD
     })
 
+    app.get('/', function (req, res) {
+        res.send("Hello")
+    })
+
+    // Actors
     app.get('/actors', async function (req, res) {
         let [actors] = await connection.execute("select * from actor")
         // equivalent to
         // const results = await connection.execute("select * from actor")
         // const actors = results[0]
-        res.render('actors', {
-            actors
-        })
+        res.render('actors', { actors })
     })
 
     app.get('/search', async function (req, res) {
@@ -83,6 +86,34 @@ async function main() {
         await connection.execute(query, bindings)
         res.redirect('/actors')
     })
+
+    // Categories
+    app.get('/categories', async function (req, res) {
+        let [categories] = await connection.execute("select * from category")
+        res.render('categories', { categories })
+    })
+
+    app.post('/categories', async function (req, res) {
+        let query = "insert into category (name, last_update) value (?, curtime())"
+        await connection.execute(query, [req.body.name])
+        res.redirect('/categories')
+    })
+
+    app.get('/categories/update/:category_id', async function(req,res) {
+        let query = "select * from category where category_id = ?"
+        let [categories] = await connection.execute(query, [parseInt(req.params.category_id)])
+        let catogoryToUpdate = categories[0]
+        res.render('update_category', {
+            category: catogoryToUpdate
+        })
+    })
+
+    app.post('/categories/update/:category_id'), async function(req,res) {
+        let query = "update category set name=? where category_id=?"
+        let bindings = [req.body.name, parseInt(req.params.category_id)]
+        await connection.execute(query, bindings)
+        res.redirect('/categories')
+    }
 }
 main()
 
