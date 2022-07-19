@@ -22,8 +22,8 @@ group by payments.customerNumber
 having sum(amount) > 10000;
 
 -- 11
-select orderdetails.productCode, sum(quantityOrdered) from orderdetails
+select orderdetails.productCode, count(*) from orderdetails
 left join products on orderdetails.productCode = products.productCode
 group by products.productCode
-order by sum(quantityOrdered) desc
+order by count(*) desc
 limit 10;
